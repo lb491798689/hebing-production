@@ -1709,7 +1709,7 @@ ul.sub-link-container {
   }
 {%- endstyle -%}
 <height-observer variable="header">
-  <store-header class="header{% unless is_transparent_header %} is-filled{% endunless %}" {% if section.settings.enable_sticky %}sticky{% endif %}{% if is_transparent_header %} allow-transparency data-transparent-header{% endif %} {% if section.settings.hide_on_scroll %}hide-on-scroll="48"{% endif %}>
+  <store-header class="header{% unless is_transparent_header %} is-filled{% endunless %}" {% if section.settings.enable_sticky %}sticky{% endif %}{% if is_transparent_header %} allow-transparency data-transparent-header{% endif %} hide-on-scroll="48">
     <div class="header__wrapper">
       {%- comment -%}
       --------------------------------------------------------------------------------------------------------------------

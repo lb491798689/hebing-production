@@ -4327,11 +4327,11 @@ var StoreHeader = class extends HTMLElement {
     }
   }
   async hide(force = false) {
-    // 滚动隐藏：仅商品页（与 _onScroll 配合：实际仅在 subnav 固定 data-jingva-subnav-fixed 时触发）。
-    // jingva-g7/m6-subnav 固定时传 force=true，任意路径均可收起主导航。
-    if (!force && !window.location.pathname.includes("/products")) {
-      return;
-    }
+    // 滚动隐藏：所有页面统一启用（向上滚动隐藏、向下滚动显示）。
+    // 旧逻辑：仅商品页 & subnav 固定时才隐藏。已注释。
+    // if (!force && !window.location.pathname.includes("/products")) {
+    //   return;
+    // }
     if (this._isVisible) {
       this._isVisible = false;
       document.documentElement.style.setProperty("--header-is-visible", "0");
@@ -4342,6 +4342,7 @@ var StoreHeader = class extends HTMLElement {
     }
   }
   show() {
+    // 与 jingva-g7/m6 subnav 互斥：subnav 固定时不允许显示主导航，避免叠出空白带。
     if (document.documentElement.hasAttribute("data-jingva-subnav-fixed")) {
       return;
     }
@@ -4357,16 +4358,15 @@ var StoreHeader = class extends HTMLElement {
     if (window.scrollY < 0) {
       return;
     }
-    // 仅当 Jingva subnav 已固定贴顶（与主导航互斥）时，才响应 hide-on-scroll。
-    // 无 subnav 的页面（如首页）或商品页未固定 subnav 前：不向下滚动收起主导航。
-    if (!document.documentElement.hasAttribute("data-jingva-subnav-fixed")) {
-      this._accumulatedScroll = 0;
-      if (window.scrollY < this._lastScrollTop) {
-        this.show();
-      }
-      this._lastScrollTop = window.scrollY;
-      return;
-    }
+    // 旧逻辑：仅当 Jingva subnav 已固定贴顶（与主导航互斥）时，才响应 hide-on-scroll。已注释，全站生效。
+    // if (!document.documentElement.hasAttribute("data-jingva-subnav-fixed")) {
+    //   this._accumulatedScroll = 0;
+    //   if (window.scrollY < this._lastScrollTop) {
+    //     this.show();
+    //   }
+    //   this._lastScrollTop = window.scrollY;
+    //   return;
+    // }
     this._accumulatedScroll = Math.max(0, this._accumulatedScroll + (window.scrollY - this._lastScrollTop));
     if (window.scrollY < this._lastScrollTop) {
       this.show();

@@ -9467,18 +9467,26 @@ product-rerender {
 
 /* ── AutoFull Search Drawer ── */
 .af-search-drawer {
+  /* 清除入场动画 clip-path 的圆角（drawer 内部用 round var(--rounded-sm)/(--rounded-xs) 切角） */
+  --rounded-sm: 0px;
+  --rounded-xs: 0px;
   --drawer-body-padding: 0;
   --drawer-header-padding: 0;
   --drawer-footer-padding: 0;
   --drawer-content-max-height: none;
   height: auto !important;
   padding: 0 !important;
-  top: calc(var(--announcement-bar-height, 0px) + var(--header-height, 0px)) !important;
+  top: calc(var(--announcement-bar-height, 0px) + var(--header-height, 60px)) !important;
   left: 0 !important;
   right: 0 !important;
   bottom: auto !important;
   width: 100% !important;
   max-width: 100% !important;
+}
+
+/* 提高优先级，确保 top 不被 _setInitialPosition() 写的 inline top:0 干掉 */
+search-drawer.af-search-drawer.af-search-drawer {
+  top: calc(var(--announcement-bar-height, 0px) + var(--header-height, 60px)) !important;
 }
 
 .af-search-drawer::part(content) {
@@ -9517,11 +9525,17 @@ product-rerender {
   display: none !important;
 }
 
+/* 关闭点击 overlay 时的鼠标光标 X 图标（drawer 内置 .show-close-cursor 行为） */
+.af-search-drawer.show-close-cursor::part(overlay),
+.af-search-drawer::part(overlay) {
+  cursor: pointer !important;
+}
+
 .af-search-form {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: 28px 16px 64px 16px;
+  padding: 0 16px 64px 16px;
 }
 
 .af-search-close {
@@ -9537,6 +9551,8 @@ product-rerender {
   padding: 0;
   flex-shrink: 0;
   align-self: flex-end;
+  margin-top: 28px;
+  transition: background 0.2s ease;
 }
 
 .af-search-close:hover {
@@ -9549,9 +9565,10 @@ product-rerender {
   gap: 16px;
   padding: 12px;
   border-radius: 12px;
-  background: #FAFAFA;
-  border: 1px solid #1A1A1A;
+  background: #FFFFFF;
+  border: none;
   box-sizing: border-box;
+  width: 100%;
 }
 
 .af-search-icon {
@@ -9586,19 +9603,32 @@ product-rerender {
   display: none;
 }
 
+/* 清空按钮：默认隐藏，输入有内容时出现 */
 .af-search-reset {
-  font-size: 14px;
-  opacity: 0;
-  transition: opacity .2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
   background: none;
   border: none;
   cursor: pointer;
   padding: 0;
-  color: rgba(26, 26, 26, 0.6);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s;
+}
+
+.af-search-reset svg {
+  display: block;
+  width: 24px;
+  height: 24px;
 }
 
 .af-search-input > input:not(:placeholder-shown) ~ .af-search-reset {
   opacity: 1;
+  pointer-events: auto;
 }
 
 .af-quick-links {
@@ -9611,7 +9641,7 @@ product-rerender {
   font-family: 'Gabarito', sans-serif;
   font-size: 18px;
   font-weight: 400;
-  line-height: 21.6px;
+  line-height: normal;
   color: rgba(26, 26, 26, 0.8);
   margin: 0;
   text-transform: capitalize;
@@ -9635,21 +9665,31 @@ product-rerender {
   align-items: center;
   gap: 10px;
   text-decoration: none;
-  color: #0A0A0A;
+  color: rgba(26, 26, 26, 0.40);
   font-family: 'Gabarito', sans-serif;
   font-size: 18px;
   font-weight: 500;
-  line-height: 21.6px;
+  line-height: normal;
+  transition: color 0.2s ease;
 }
 
-.af-quick-links__link:hover {
-  opacity: 0.7;
+.af-quick-links__link:hover,
+.af-quick-links__link:active,
+.af-quick-links__link:focus {
+  color: #0A0A0A;
+  opacity: 1;
 }
 
 .af-quick-links__link svg {
   flex-shrink: 0;
-  width: 24px;
-  height: 24px;
+  width: 15px;
+  height: 16px;
+  transition: opacity 0.2s ease;
+}
+
+/* svg 跟随文字颜色：默认 0.4 透明，hover 时实色 */
+.af-quick-links__link svg path {
+  fill: currentColor;
 }
 
 @media screen and (min-width: 700px) {
@@ -9661,14 +9701,24 @@ product-rerender {
     width: 100%;
   }
 
+  /* PC 不显示关闭按钮（点击遮罩或外部关闭） */
   .af-search-close {
     display: none;
   }
 
   .af-search-input {
     padding: 8px 16px;
+    height: 48px;
   }
 
+}
+
+/* PC 1440+：input 右侧 X 始终显示（即使没输入），点击清空并关闭 drawer */
+@media screen and (min-width: 1440px) {
+  .af-search-reset {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
 }
 
 .shop-the-look {

@@ -10,22 +10,6 @@
 
 <section{% if se_stts.anchor_id != blank %} id="{{ se_stts.anchor_id | escape }}"{% endif %} class="jingva-media-endorsement-new jingva-media-endorsement-new-{{ sid }}" data-section-id="{{ sid }}" style="--jme-pc-pt: {{ se_stts.pc_padding_top | default: 160 }}px; --jme-pc-pb: {{ se_stts.pc_padding_bottom | default: 0 }}px; --jme-mob-pt: {{ se_stts.mob_padding_top | default: 68 }}px; --jme-mob-pb: {{ se_stts.mob_padding_bottom | default: 0 }}px;">
   <style>
-    /*
-     * Figma PC — node 5276-2747（版心 1200）
-     * 标题区 gap 48 | 卡片行 gap 12 | 单卡宽 420
-     * 图区 420×180 #F0F0F0 圆角 12 | 文案区 padding 12 / 24 / 24 / 0，gap 12
-     * 标题 Gabarito 600 48 / lh 57.6 #0A0A0A
-     * 来源 Gabarito 500 24 / lh 28.8 #0A0A0A | 正文 400 16 / lh 19.2 rgba(26,26,26,0.6)
-     * 上图区仅作媒体 icon 背景框（#F0F0F0），运营上传小尺寸 logo/icon
-     * 导航 48×48 #F0F0F0 圆角 12 gap 16（左对齐，无分页点）
-     *
-     * Figma MOB — node 5738-4864（390 视口，水平 padding 16，内容 358）
-     * 标题 gap 32 | 卡片区 gap 16 | 滑块 gap 12 | 卡宽 240
-     * 图区 240×111 圆角 8 | 文案 padding 8 / 16 / 0 / 0 gap 12
-     * 标题 600 24 / lh 28.8 | 来源 500 20 / lh 24 | 正文 400 14 / lh 16.8
-     * 导航 40×40 圆角 8 #F0F0F0
-     */
-
     /* === PC：≥1440（develop.md）=== */
     .jingva-media-endorsement-new-{{ sid }} {
       position: relative !important;
@@ -178,6 +162,11 @@
       margin-top: 24px !important;
     }
 
+    /* PC（≥1280）≤3 个 item 时隐藏左右切换按钮 */
+    .jingva-media-endorsement-new-{{ sid }} .jingva-endorsement-new-navigation[data-pc-hide] {
+      display: none !important;
+    }
+
     .jingva-media-endorsement-new-{{ sid }} .jingva-endorsement-new-nav-btn {
       width: 48px !important;
       height: 48px !important;
@@ -319,6 +308,11 @@
         margin-top: 16px !important;
         margin-bottom: 2px !important;
       }
+
+      /* MOB 即使 ≤3 个 item 也保留切换按钮（仅 PC 隐藏） */
+      .jingva-media-endorsement-new-{{ sid }} .jingva-endorsement-new-navigation[data-pc-hide] {
+        display: flex !important;
+      }
     }
   </style>
 
@@ -407,7 +401,7 @@
         </div>
 
         {% if endorsement_count > 1 %}
-          <div class="jingva-endorsement-new-navigation">
+          <div class="jingva-endorsement-new-navigation"{% if endorsement_count <= 3 %} data-pc-hide{% endif %}>
             <button class="jingva-endorsement-new-nav-btn jingva-endorsement-new-prev-{{ sid }}" type="button" aria-label="Previous">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M15 18L9 12L15 6" stroke="#0A0A0A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>

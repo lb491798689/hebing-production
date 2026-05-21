@@ -6,7 +6,7 @@
   #shopify-section-{{ section.id }} {
     position: sticky;
     top: {% if section.settings.cover_header %}0{% else %}calc(var(--header-height)){% endif %};
-    z-index: 104;
+    z-index: {% if section.settings.cover_header %}104{% else %}100{% endif %};
     transition: top 0.2s ease;
   }
 

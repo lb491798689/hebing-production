@@ -19,7 +19,15 @@
       filter: drop-shadow(0px 0px 7px rgba(26, 26, 26, 0.2)) !important;
       visibility: visible !important;
       opacity: 1 !important;
-      transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, visibility 0s linear 0s !important;
+    }
+
+    /* 向下滚动时整体淡出，停止 1s 后再淡入 */
+    .jingva-sidebar.is-scroll-hidden {
+      opacity: 0 !important;
+      pointer-events: none !important;
+      visibility: hidden !important;
+      transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, visibility 0s linear 0.3s !important;
     }
 
     /* ---------- 头像区 ---------- */
@@ -1008,6 +1016,61 @@ Doctor of Medicine of Palmer College of Chiropractic Care</p>
         }
       });
     }
+
+    /* ───────── 滚动渐隐渐显：向下滚动淡出，停下 1s 后淡入（PC/MOB 同步） ───────── */
+    (function initScrollFade() {
+      var sidebarEl = document.getElementById('jingva-sidebar');
+      if (!sidebarEl) return;
+
+      var IDLE_DELAY = 1000;       // 停止滚动 1s 后淡入
+      var DOWN_THRESHOLD = 4;      // 单帧向下位移超过该阈值视为有效向下滚动
+      var lastY = window.pageYOffset || document.documentElement.scrollTop || 0;
+      var idleTimer = 0;
+      var rafId = 0;
+      var hidden = false;
+
+      // 用 inline style 覆盖：上方有 setProperty('opacity','1','important')，必须以同等优先级写入
+      function applyHidden() {
+        sidebarEl.style.setProperty('opacity', '0', 'important');
+        sidebarEl.style.setProperty('pointer-events', 'none', 'important');
+        // 不改 visibility，避免抢占其它逻辑；opacity 0 已视觉隐藏
+      }
+      function applyVisible() {
+        sidebarEl.style.setProperty('opacity', '1', 'important');
+        sidebarEl.style.setProperty('pointer-events', 'auto', 'important');
+      }
+
+      function showSoon() {
+        if (idleTimer) clearTimeout(idleTimer);
+        idleTimer = setTimeout(function () {
+          idleTimer = 0;
+          if (hidden) {
+            hidden = false;
+            applyVisible();
+          }
+        }, IDLE_DELAY);
+      }
+
+      function onScroll() {
+        rafId = 0;
+        var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+        var delta = y - lastY;
+        lastY = y;
+
+        if (delta > DOWN_THRESHOLD) {
+          if (!hidden) {
+            hidden = true;
+            applyHidden();
+          }
+          showSoon();
+        }
+      }
+
+      window.addEventListener('scroll', function () {
+        if (rafId) return;
+        rafId = window.requestAnimationFrame(onScroll);
+      }, { passive: true });
+    })();
   })();
 </script>
 

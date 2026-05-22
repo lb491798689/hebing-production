@@ -126,15 +126,23 @@
       height: 100% !important;
     }
 
-    /* === PAD: 1280~1439 === */
+    /* === PAD: 1280~1439 ===
+       视觉对齐 PC（≥1440）：1200 版心居中、卡片横排、字号一致；
+       section 不再加左右 padding，1200 版心由 wrapper 的 auto margin 在视口里居中。
+       1280 视口下：(1280 - 1200) / 2 = 40px 自然留白；1439 视口下：~120px 留白。 */
     @media screen and (min-width: 1280px) and (max-width: 1439px) {
       {{ default_sid }} {
-        padding: 60px 40px 120px !important;
+        padding: 70px 0 140px !important;
+        overflow: visible !important;
       }
 
       {{ default_sid }} .jingva-specialists-wrapper {
+        /* 锁死 1200 版心，跨整个 PAD 区间宽度恒定，间距由两侧 auto margin 自然吸收 */
+        width: 1200px !important;
+        max-width: 1200px !important;
+        margin: 0 auto !important;
         padding: 0 !important;
-        gap: 60px !important;
+        gap: 48px !important;
       }
 
       {{ default_sid }} .jingva-specialists-headline {
@@ -143,20 +151,22 @@
       }
 
       {{ default_sid }} .jingva-specialists-headline h2 {
-        font-size: 32px !important;
-        line-height: 38.4px !important;
+        font-size: 40px !important;
+        line-height: 48px !important;
         text-align: center !important;
       }
 
       {{ default_sid }} .jingva-specialists-cards {
-        flex-direction: column !important;
+        flex-direction: row !important;
         gap: 12px !important;
       }
 
       {{ default_sid }} .jingva-specialist-card {
-        background-color: #f5f5f5 !important;
-        padding: 24px 16px !important;
+        background-color: #F0F0F0 !important;
+        padding: 51px 48px 49px !important;
         gap: 147px !important;
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
       }
 
       {{ default_sid }} .jingva-specialist-card-content {
@@ -170,8 +180,8 @@
       }
 
       {{ default_sid }} .jingva-specialist-card-icon {
-        width: 36px !important;
-        height: 36px !important;
+        width: 48px !important;
+        height: 48px !important;
       }
     }
 

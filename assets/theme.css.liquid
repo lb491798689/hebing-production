@@ -12100,64 +12100,7 @@ body.template-product-m6-20260402 .product-info__buy-buttons {
   text-decoration-color: #E01B1B;
 }
 
-/* PAD (1280–1439)：develop.md 定义为小屏电脑，按 PC 轻微缩小 */
-@media screen and (min-width: 1280px) and (max-width: 1439px) {
-  .g7-custom-sticky-cart {
-    padding: 12px 24px;
-  }
-
-  .g7-sticky-cart-container {
-    gap: 16px;
-    flex-wrap: nowrap;
-  }
-
-  .g7-sticky-delivery {
-    min-width: 0;
-    flex: 0 1 auto;
-  }
-
-  .g7-sticky-right {
-    gap: 16px;
-    min-width: 0;
-    flex: 1 1 auto;
-    justify-content: flex-end;
-  }
-
-  .g7-delivery-label,
-  .g7-delivery-location,
-  .g7-delivery-date {
-    font-size: 14px !important;
-  }
-
-  .g7-price-current {
-    font-size: 24px;
-  }
-
-  .g7-price-compare {
-    font-size: 16px;
-  }
-
-  /* tablet 按钮：弹性宽度，避免容器变窄时溢出；保留视觉下限 */
-  .g7-btn-add-to-cart,
-  .g7-btn-buy-now {
-    width: auto;
-    min-width: 140px;
-    max-width: 220px;
-    flex: 1 1 160px;
-    height: 44px;
-    padding: 0 20px;
-    font-size: 14px;
-  }
-
-  .g7-sticky-buttons {
-    flex-wrap: nowrap;
-  }
-
-  /* tablet 隐藏 Klarna 文案：nowrap 会撑开右栏，导致 Buy Now 被视口裁切 */
-  .g7-klarna-info {
-    display: none !important;
-  }
-}
+/* 1280–1440 维持 PC 样式（按用户要求，原 PAD 缩小规则已移除） */
 
 /* ========================================
    Mobile (mob) Sticky Cart — develop.md 断点 ≤ 1279px

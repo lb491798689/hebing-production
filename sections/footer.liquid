@@ -897,8 +897,9 @@
     }
   }
 
-  /* PAD：1024~1439 使用移动端底部排布，避免横向溢出与页面晃动 */
-  @media screen and (min-width: 1024px) and (max-width: 1439px) {
+  /* PAD：1024~1279 使用移动端底部排布，避免横向溢出与页面晃动；
+     1280~1440 维持 PC 排版（按用户要求） */
+  @media screen and (min-width: 1024px) and (max-width: 1279px) {
     #shopify-section-{{ section.id }} {
       overflow-x: clip;
     }

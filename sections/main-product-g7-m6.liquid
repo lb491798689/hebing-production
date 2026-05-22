@@ -569,7 +569,18 @@
   }
 
   /* 手机端 product-tabs 与上方元素的间距 32px */
+  /* 同时设置 margin-bottom，让下方无论接 variant-picker 还是 discount 块都能落到 32px；
+     利用 margin collapse 保证最终间距取最大值，不会和下一个块的 margin-top 相加（不会变 64） */
   #shopify-section-{{ section.id }} .product-info__block-item[data-block-type="product-tabs"] {
+    margin-top: 32px !important;
+    margin-bottom: 32px !important;
+  }
+
+  /* 手机端 variant-picker（Select 区）与上方元素的间距 32px
+     - 折扣块隐藏时：直接接 product-tabs，由 tabs.margin-bottom(32) 与 Select.margin-top(32) 塌缩 → 32px
+     - 折扣块显示时：discount.margin-bottom(24) 与 Select.margin-top(32) 塌缩 → 32px
+     兄弟 margin 取最大不相加，保证不会出现 64px */
+  #shopify-section-{{ section.id }} .product-info__block-item[data-block-type="variant-picker"] {
     margin-top: 32px !important;
   }
 }

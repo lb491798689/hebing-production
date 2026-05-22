@@ -324,8 +324,10 @@
       .jingva-media-endorsement-new-{{ sid }} .jingva-endorsement-new-navigation[data-pc-hide] {
         display: flex !important;
       }
+    }
 
-      /* MOB 不应用 PC 居中（保持左对齐 + swiper 默认布局） */
+    /* 真·手机（≤767）：≤3 个 item 时不强制居中，保持原本左对齐 + swiper 横滑 */
+    @media screen and (max-width: 767px) {
       .jingva-media-endorsement-new-{{ sid }} .jingva-endorsement-new-container[data-pc-center] {
         align-items: flex-start !important;
       }

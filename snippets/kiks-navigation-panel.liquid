@@ -31,24 +31,72 @@ Supported variables
           {%- for link in main_menu.links -%}
             {%- unless is_mega_menu -%}
               {% liquid
-                assign link_title_downcase = link.title | downcase
+                assign link_title_downcase = link.title | strip | downcase
                 assign mega_menu_block = ''
                 assign is_image_shown = false
 
+                comment
+                  与 header.liquid 一致的容错匹配：
+                  - product ↔ products 互通
+                  - menu_item 留空作为通配
+                  - 仅 1 个 mega_menu 区块时直接使用
+                endcomment
                 for block in section.blocks
-                  assign menu_item_downcase = block.settings.menu_item | strip | downcase
+                  if block.type == 'mega_menu'
+                    assign menu_item_downcase = block.settings.menu_item | strip | downcase
+                    assign menu_matches = false
+                    if menu_item_downcase != '' and menu_item_downcase == link_title_downcase
+                      assign menu_matches = true
+                    elsif menu_item_downcase == 'products' and link_title_downcase == 'product'
+                      assign menu_matches = true
+                    elsif menu_item_downcase == 'product' and link_title_downcase == 'products'
+                      assign menu_matches = true
+                    endif
+                    if menu_matches
+                      assign mega_menu_block = block
+                      if block.settings.drawer_link_image == 'show'
+                        assign is_image_shown = true
+                      endif
+                      break
+                    endif
+                  endif
+                endfor
 
-                  if menu_item_downcase == link_title_downcase
-                    assign mega_menu_block = block
+                assign has_grandchild_links = false
+                if mega_menu_block == ''
+                  for sub_link in link.links
+                    if sub_link.links.size > 0
+                      assign has_grandchild_links = true
+                      break
+                    endif
+                  endfor
+                endif
 
-                  if block.settings.drawer_link_image == 'show'
+                if mega_menu_block == '' and has_grandchild_links
+                  assign mega_blocks_count = 0
+                  assign sole_mega_menu_block = ''
+                  assign wildcard_mega_menu_block = ''
+                  for block in section.blocks
+                    if block.type == 'mega_menu'
+                      assign mega_blocks_count = mega_blocks_count | plus: 1
+                      if sole_mega_menu_block == ''
+                        assign sole_mega_menu_block = block
+                      endif
+                      if block.settings.menu_item == blank and wildcard_mega_menu_block == ''
+                        assign wildcard_mega_menu_block = block
+                      endif
+                    endif
+                  endfor
+                  if wildcard_mega_menu_block != ''
+                    assign mega_menu_block = wildcard_mega_menu_block
+                  elsif mega_blocks_count == 1
+                    assign mega_menu_block = sole_mega_menu_block
+                  endif
+                  if mega_menu_block != '' and mega_menu_block.settings.drawer_link_image == 'show'
                     assign is_image_shown = true
-                    break
                   endif
-
-                    break
-                  endif
-                endfor %}
+                endif
+              %}
 
             {%- else -%}
               {%- assign is_image_shown = false -%}

@@ -50,6 +50,17 @@
       transform: translateY(0) !important;
     }
 
+    /* PC（≥1280）≤3 个 item：标题与卡片整列居中对齐 */
+    .jingva-media-endorsement-new-{{ sid }} .jingva-endorsement-new-container[data-pc-center] {
+      align-items: center !important;
+    }
+    .jingva-media-endorsement-new-{{ sid }} .jingva-endorsement-new-container[data-pc-center] .jingva-endorsement-new-title {
+      text-align: center !important;
+    }
+    .jingva-media-endorsement-new-{{ sid }} .jingva-endorsement-new-container[data-pc-center] .swiper-wrapper {
+      justify-content: center !important;
+    }
+
     .jingva-media-endorsement-new-{{ sid }} .jingva-endorsement-new-swiper-wrapper {
       position: relative !important;
       width: 100% !important;
@@ -313,11 +324,22 @@
       .jingva-media-endorsement-new-{{ sid }} .jingva-endorsement-new-navigation[data-pc-hide] {
         display: flex !important;
       }
+
+      /* MOB 不应用 PC 居中（保持左对齐 + swiper 默认布局） */
+      .jingva-media-endorsement-new-{{ sid }} .jingva-endorsement-new-container[data-pc-center] {
+        align-items: flex-start !important;
+      }
+      .jingva-media-endorsement-new-{{ sid }} .jingva-endorsement-new-container[data-pc-center] .jingva-endorsement-new-title {
+        text-align: left !important;
+      }
+      .jingva-media-endorsement-new-{{ sid }} .jingva-endorsement-new-container[data-pc-center] .swiper-wrapper {
+        justify-content: flex-start !important;
+      }
     }
   </style>
 
   {% if endorsement_count > 0 %}
-    <div class="jingva-endorsement-new-container">
+    <div class="jingva-endorsement-new-container"{% if endorsement_count <= 3 %} data-pc-center{% endif %}>
       {% if title != blank %}
         <h2 class="jingva-endorsement-new-title">{{ title }}</h2>
       {% endif %}

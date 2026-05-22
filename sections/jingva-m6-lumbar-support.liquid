@@ -108,6 +108,18 @@
       margin: 0 !important;
     }
 
+    /* Firefox 修复：rich-text 输出可能是 <div> 包 <p>，
+       浏览器对块级元素 margin collapse 处理不同会导致额外高度。
+       强制所有子元素 margin 0、消除空段引起的额外行 */
+    {{ default_sid }} .jingva-m6-lumbar-support-description > * {
+      margin: 0 !important;
+    }
+    {{ default_sid }} .jingva-m6-lumbar-support-description br + br,
+    {{ default_sid }} .jingva-m6-lumbar-support-description p:empty,
+    {{ default_sid }} .jingva-m6-lumbar-support-description div:empty {
+      display: none !important;
+    }
+
     {{ default_sid }} .jingva-m6-lumbar-support-media-container {
       position: relative !important;
       width: 100% !important;

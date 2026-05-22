@@ -66,7 +66,7 @@
       display: flex !important;
       flex-direction: column !important;
       align-items: center !important;
-      gap: 45px !important;
+      gap: 48px !important;
       box-sizing: border-box !important;
     }
 
@@ -106,7 +106,10 @@
       position: relative !important;
       width: 100% !important;
       max-width: 1200px !important;
-      min-height: 60px !important;
+      /* Grid 堆叠：多条描述共占同一单元格，容器高度自适应到最高描述，
+         避免 absolute 不撑高 + wrapper gap 让媒体块上移遮住描述 */
+      display: grid !important;
+      min-height: 0 !important;
     }
 
     {{ default_sid }} .jingva-g7-lumbar-description {
@@ -118,9 +121,7 @@
       text-align: center !important;
       margin: 0 !important;
       width: 100% !important;
-      position: absolute !important;
-      top: 0 !important;
-      left: 0 !important;
+      grid-area: 1 / 1 !important;
       opacity: 0 !important;
       transition: opacity 0.5s ease !important;
       pointer-events: none !important;
@@ -208,7 +209,7 @@
       }
 
       {{ default_sid }} .jingva-g7-lumbar-wrapper {
-        gap: 40px !important;
+        gap: 48px !important;
       }
 
       {{ default_sid }} .jingva-g7-lumbar-content {
@@ -271,6 +272,10 @@
       {{ default_sid }} .jingva-g7-lumbar-description-container {
         max-width: 100% !important;
         width: 100% !important;
+        /* Grid 堆叠：所有描述共用同一单元格，容器高度 = 最高描述，
+           不再受 PC 默认 min-height:60px 限制，避免 4 行小字溢出被下方图片遮挡 */
+        display: grid !important;
+        min-height: 0 !important;
       }
 
       {{ default_sid }} .jingva-g7-lumbar-description {
@@ -278,6 +283,9 @@
         text-align: center !important;
         padding: 0 !important;
         font-weight: 500 !important;
+        /* grid 堆叠下脱离 absolute，使用 grid-area 共占同一单元格 */
+        position: static !important;
+        grid-area: 1 / 1 !important;
       }
 
       {{ default_sid }} .jingva-g7-lumbar-media-container {

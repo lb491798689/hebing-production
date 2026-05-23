@@ -4301,6 +4301,25 @@ if (!window.customElements.get("account-login")) {
 // js/sections/header.js
 import { animate as animate11, timeline as timeline9, stagger as stagger5, Delegate as Delegate6 } from "vendor";
 var reduceMenuAnimation = window.themeVariables.settings.reduceMenuAnimation;
+function isG7M6PdpRightColumnScrollPhase() {
+  const body = document.body;
+  if (!body.classList.contains("template-product-g7-20260402") && !body.classList.contains("template-product-m6-20260402")) {
+    return false;
+  }
+  const sticky = document.querySelector("safe-sticky.product-info");
+  if (!sticky || getComputedStyle(sticky).position !== "sticky") {
+    return false;
+  }
+  const minTop = sticky.clientHeight - window.innerHeight + 20;
+  if (minTop <= 0) {
+    return false;
+  }
+  let currentTop = sticky.style.top ? parseFloat(sticky.style.top) : parseFloat(getComputedStyle(sticky).top);
+  if (Number.isNaN(currentTop)) {
+    currentTop = 0;
+  }
+  return currentTop > -minTop + 1;
+}
 var StoreHeader = class extends HTMLElement {
   connectedCallback() {
     if (this.hasAttribute("hide-on-scroll") && window.matchMedia("(prefers-reduced-motion: no-preference)").matches) {
@@ -4332,6 +4351,9 @@ var StoreHeader = class extends HTMLElement {
     // if (!force && !window.location.pathname.includes("/products")) {
     //   return;
     // }
+    if (!force && isG7M6PdpRightColumnScrollPhase()) {
+      return;
+    }
     if (this._isVisible) {
       this._isVisible = false;
       document.documentElement.style.setProperty("--header-is-visible", "0");
@@ -4358,6 +4380,14 @@ var StoreHeader = class extends HTMLElement {
     if (window.scrollY < 0) {
       return;
     }
+    if (isG7M6PdpRightColumnScrollPhase()) {
+      document.documentElement.setAttribute("data-pdp-right-scroll-phase", "true");
+      this._accumulatedScroll = 0;
+      this.show();
+      this._lastScrollTop = window.scrollY;
+      return;
+    }
+    document.documentElement.removeAttribute("data-pdp-right-scroll-phase");
     // 旧逻辑：仅当 Jingva subnav 已固定贴顶（与主导航互斥）时，才响应 hide-on-scroll。已注释，全站生效。
     // if (!document.documentElement.hasAttribute("data-jingva-subnav-fixed")) {
     //   this._accumulatedScroll = 0;
@@ -4428,7 +4458,12 @@ var DropdownDisclosure = class _DropdownDisclosure extends AnimatedDetails {
     this.addEventListener("mouseout", this._detectHoverListener.bind(this));
   }
   get trigger() {
-    return !window.matchMedia("screen and (pointer: fine)").matches ? "click" : this.getAttribute("trigger");
+    const configuredTrigger = this.getAttribute("trigger") || "click";
+    /* develop.md PAD/PC 桌面导航（≥1280）：后台配置 hover 时始终悬浮展开，勿因 pointer 检测回退为 click */
+    if (window.matchMedia("(min-width: 1280px)").matches && configuredTrigger === "hover") {
+      return "hover";
+    }
+    return !window.matchMedia("screen and (pointer: fine)").matches ? "click" : configuredTrigger;
   }
   get mouseOverDelayTolerance() {
     return 250;

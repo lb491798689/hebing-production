@@ -672,6 +672,46 @@ only way to do it on Shopify right now.
       }
     }
 
+    /* PAD（1280–1439）：权益行换行 + 图片按列宽缩放，避免 nowrap 撑宽左列导致右侧溢出 */
+    @media screen and (min-width: 1280px) and (max-width: 1439px) {
+      product-gallery,
+      .jingva-product-gallery-box {
+        min-width: 0 !important;
+        max-width: 100% !important;
+      }
+
+      .product-gallery__media-list-wrapper {
+        padding: 0 16px !important;
+      }
+
+      .product-gallery__media {
+        height: auto !important;
+        aspect-ratio: 1 / 1 !important;
+        max-height: min(56vw, 480px) !important;
+      }
+
+      .jingva-gallery-controls-inner {
+        width: min(408px, 100%) !important;
+      }
+
+      .jingva-gallery-benefits__row {
+        flex-wrap: wrap !important;
+        gap: 8px 16px !important;
+        padding: 8px 16px !important;
+      }
+
+      .jingva-gallery-benefits__item {
+        white-space: normal !important;
+        flex: 0 1 calc(50% - 8px) !important;
+        justify-content: flex-start !important;
+      }
+
+      .jingva-gallery-benefits__item span {
+        font-size: 12px !important;
+        text-align: left !important;
+      }
+    }
+
     /* ========== 桌面端: 隐藏移动端箭头 ========== */
     @media screen and (min-width: 1280px) {
       .jingva-mobile-arrow { display: none !important; }

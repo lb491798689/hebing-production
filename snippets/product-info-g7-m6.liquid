@@ -1807,12 +1807,92 @@
       height: 24px !important;
     }
 
+    /* PAD（1280–1439）：Klarna 与 tabs 在窄 info 列内防溢出 */
+    @media screen and (min-width: 1280px) and (max-width: 1439px) {
+      klarna-placement::part(osm-container) {
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        padding: 12px 16px !important;
+        gap: 8px 12px !important;
+        box-sizing: border-box !important;
+        max-width: 100% !important;
+      }
+
+      klarna-placement::part(osm-badge-container) {
+        order: 2 !important;
+        margin-left: auto !important;
+      }
+
+      klarna-placement::part(osm-message) {
+        flex: 1 1 100% !important;
+        max-width: 100% !important;
+        font-size: 13px !important;
+        letter-spacing: -0.26px !important;
+      }
+
+      klarna-placement::part(osm-cta) {
+        flex: 1 1 auto !important;
+        font-size: 13px !important;
+        white-space: nowrap !important;
+      }
+
+      .product-tabs-container {
+        padding: 0 16px 16px 16px !important;
+        margin-top: 20px !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+      }
+
+      .product-tabs-header {
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding: 8px 0 0 !important;
+        gap: 16px !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+
+      .product-tabs-header::-webkit-scrollbar {
+        display: none;
+      }
+
+      .product-tabs-header::after {
+        width: 48px !important;
+      }
+
+      .product-tabs-content,
+      .product-tab-pane,
+      .product-tab-main-content,
+      .product-tab-main-content p {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+      }
+
+      .product-tab {
+        font-size: 14px !important;
+      }
+
+      .product-tab-images-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+      }
+    }
+
     /* Product Tabs */
     .product-tabs-container {
       background-color: #F0F0F0;
       border-radius: 12px;
-      padding: 0 24px 24px 24px;
+      padding: 0 16px 16px 16px;
       margin-top: 24px;
+      max-width: 100%;
+      box-sizing: border-box;
+      overflow: hidden;
     }
 
     /* Tab 条：Figma 3337:84492 — pt 8px、px 24px、gap 24px、items-center */
@@ -1822,15 +1902,37 @@
       flex-wrap: nowrap;
       align-items: center;
       gap: 24px;
-      width: calc(100% + 48px);
-      margin-left: -24px;
-      margin-right: -24px;
-      padding: 8px 24px 0;
+      width: 100%;
+      margin-left: 0;
+      margin-right: 0;
+      padding: 8px 0 0;
       border-bottom: none;
       margin-bottom: 24px;
-      overflow: hidden;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
       position: relative;
       box-sizing: border-box;
+    }
+
+    .product-tabs-header::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* PC（≥1440）：Figma 全宽 tab 条，负 margin 出血对齐容器 padding */
+    @media screen and (min-width: 1440px) {
+      .product-tabs-container {
+        padding: 0 24px 24px 24px;
+      }
+
+      .product-tabs-header {
+        width: calc(100% + 48px);
+        margin-left: -24px;
+        margin-right: -24px;
+        padding: 8px 24px 0;
+        overflow: hidden;
+      }
     }
 
     .product-tabs-header::before {
@@ -2161,7 +2263,7 @@
       }
     }
 
-    /* PC端隐藏 view more */
+    /* PC端隐藏 view more；奖项图 Figma 全宽 padding 仅 ≥1440 */
     @media screen and (min-width: 1000px) {
       .product-tab-view-more {
         display: none !important;
@@ -2177,7 +2279,9 @@
       #tab-1 .product-tab-tags {
         display: flex !important;
       }
+    }
 
+    @media screen and (min-width: 1440px) {
       /* Tab3 奖项图：对齐 Figma ward 1755:7707（横向 flex、96×48 单元、gap 8、左右 24） */
       .product-tab-images-grid {
         display: flex;
@@ -2209,6 +2313,56 @@
 
       .product-tab-image-item:first-child img {
         object-fit: cover;
+      }
+    }
+
+    /* PAD（1280–1439）：tabs / tags 严格限制在 info 列内，防止撑开页面 */
+    @media screen and (min-width: 1280px) and (max-width: 1439px) {
+      .product-tabs-container {
+        padding: 0 16px 16px 16px !important;
+        margin-top: 20px !important;
+      }
+
+      .product-tabs-header {
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding: 8px 0 0 !important;
+        gap: 16px !important;
+      }
+
+      .product-tabs-header::after {
+        width: 40px !important;
+      }
+
+      .product-tabs-content,
+      .product-tab-pane,
+      .product-tab-main-content,
+      .product-tab-main-content p,
+      .product-tab-tags,
+      .product-tab-list,
+      .product-tab-list-text {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+      }
+
+      .product-tab {
+        font-size: 14px !important;
+      }
+
+      .product-tab-images-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        padding: 0 !important;
+        gap: 8px !important;
+      }
+
+      .product-tab-image-item {
+        width: auto !important;
+        height: auto !important;
+        max-width: 100% !important;
       }
     }
   </style>

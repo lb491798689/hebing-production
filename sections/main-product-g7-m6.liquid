@@ -179,6 +179,8 @@
       --product-grid: auto / 1fr 560px;
       --product-gallery-media-list-grid: auto / auto-flow 100%;
       --product-gallery-media-list-gap: calc(var(--grid-gutter) / 2);
+      --pdp-sticky-gap: 20px;
+      --pdp-sticky-top: calc(var(--sticky-area-height, var(--header-height, 60px)) + var(--pdp-sticky-gap));
     }
 
     /* 清除 section 默认上下间距，保留跨视口全宽以让背景铺满 */
@@ -216,26 +218,71 @@
       max-width: 65% !important; {% endcomment %}
     }
 
-    /* PC：左列画廊 sticky，避免向下滚动时被 sticky header 遮挡顶部。
-       ⚠️ 不使用 --sticky-area-height：该变量 = --announcement-bar-height + --header-height，
-       而 --announcement-bar-height 由 <height-observer> 的 ResizeObserver 动态写入，公告栏
-       在特定宽度/被 JS 隐藏时会瞬时变 0，导致 top 收缩，画廊"向上小跳"。
-       这里仅依赖 header.liquid 里 IIFE 一次性写入的 --header-height（稳定），额外 +60px 冗余
-       覆盖常见公告栏 40px + 20px 留白，即便公告栏消失也不会抖动。 */
+    /* PC：左列画廊 sticky；top 由下方脚本按公告/导航实际可见底边写入 --pdp-sticky-top，
+       与 store-header translateY 隐藏动画同步，避免顶栏消失后图片上方留白。 */
     #shopify-section-{{ section.id }} product-gallery.product-gallery,
     #shopify-section-{{ section.id }} .product-gallery {
       position: sticky !important;
-      top: calc(var(--header-height, 60px) + 60px) !important;
+      top: var(--pdp-sticky-top) !important;
+      transition: top 0.2s ease !important;
       align-self: start !important;
       z-index: 1;
     }
+
+    #shopify-section-{{ section.id }} safe-sticky.product-info {
+      top: var(--pdp-sticky-top) !important;
+      transition: top 0.2s ease !important;
+    }
   }
 
-  /* PAD（1280–1439）：版心 1200 在小屏上会造成贴边，需 column-gap 缩小以避免右列过挤；info 列仍需 560，剩余留给 gallery */
+  /* PAD（1280–1439）：缩 gap/padding + 弹性列宽；保留双列 sticky / safe-sticky 滚动逻辑，禁止横向撑出视口 */
   @media screen and (min-width: 1280px) and (max-width: 1439px) {
     #shopify-section-{{ section.id }} .product {
-      {% comment %} gap: 16px !important;
-      column-gap: 16px !important; {% endcomment %}
+      gap: 16px !important;
+      column-gap: 16px !important;
+      padding-left: 40px !important;
+      padding-right: 40px !important;
+      padding-top: 24px !important;
+      min-width: 0 !important;
+      max-width: 100% !important;
+      width: 100% !important;
+      overflow-x: clip !important;
+      box-sizing: border-box !important;
+    }
+
+    #shopify-section-{{ section.id }} product-gallery.product-gallery,
+    #shopify-section-{{ section.id }} .product-gallery {
+      flex: 1 1 0 !important;
+      min-width: 0 !important;
+      max-width: none !important;
+      width: auto !important;
+      position: sticky !important;
+      top: var(--pdp-sticky-top) !important;
+      transition: top 0.2s ease !important;
+      align-self: start !important;
+      z-index: 1;
+    }
+
+    #shopify-section-{{ section.id }} safe-sticky.product-info,
+    #shopify-section-{{ section.id }} .product-info {
+      flex: 0 0 480px !important;
+      width: 480px !important;
+      min-width: 0 !important;
+      max-width: 480px !important;
+      overflow-x: clip !important;
+      overflow-y: visible !important;
+    }
+
+    #shopify-section-{{ section.id }} .product-info__block-item {
+      min-width: 0 !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+    }
+
+    #shopify-section-{{ section.id }} .product-info__block-item[data-block-type="product-tabs"],
+    #shopify-section-{{ section.id }} .product-info__block-item[data-block-type="product-tabs"] .product-tabs-container {
+      overflow-x: clip !important;
+      max-width: 100% !important;
     }
   }
 
@@ -255,9 +302,12 @@
       padding-right: 48px !important;
     }
   }
-  @media screen and (min-width: 1280px) {
-    .product-info {
+  @media screen and (min-width: 1440px) {
+    #shopify-section-{{ section.id }} safe-sticky.product-info,
+    #shopify-section-{{ section.id }} .product-info {
+      flex: 0 0 536px;
       width: 536px;
+      min-width: 0;
     }
   }
 
@@ -621,6 +671,20 @@
   #shopify-section-{{ section.id }} .text-lg.text-on-sale {
     margin-top: 8px !important;
     margin-bottom: 4px !important;
+  }
+}
+
+/* PAD（1280–1439）：Klarna 宿主块不撑出 info 列 */
+@media screen and (min-width: 1280px) and (max-width: 1439px) {
+  #shopify-section-{{ section.id }} .product-info__block-item[data-block-type="@app"] {
+    max-width: 100% !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  #shopify-section-{{ section.id }} .product-info__block-item[data-block-type="@app"] klarna-placement {
+    display: block !important;
+    max-width: 100% !important;
   }
 }
 
@@ -1253,6 +1317,77 @@
           }, 100);
         }
         window.addEventListener('load', bindFooterObserver);
+      }
+    })();
+  </script>
+
+  <script>
+    /* G7/M6 PDP：画廊与右列 sticky top 跟随公告 + store-header 实际可见高度（含 hide-on-scroll 动画） */
+    (function () {
+      var mq = window.matchMedia('(min-width: 1280px)');
+      var sectionId = 'shopify-section-{{ section.id }}';
+      var gapPx = 20;
+      var rafId = 0;
+
+      function isVisibleSection(el) {
+        if (!el) return false;
+        var cs = window.getComputedStyle(el);
+        return cs.visibility !== 'hidden' && cs.display !== 'none';
+      }
+
+      function syncPdpStickyTop() {
+        if (!mq.matches) return;
+        var sec = document.getElementById(sectionId);
+        if (!sec) return;
+
+        var offset = gapPx;
+        var ann = document.querySelector('.shopify-section--announcement-bar');
+        if (isVisibleSection(ann)) {
+          var ar = ann.getBoundingClientRect();
+          if (ar.bottom > 0) offset = Math.max(offset, ar.bottom + gapPx);
+        }
+
+        var storeHeader = document.querySelector('store-header.header');
+        if (storeHeader) {
+          var hr = storeHeader.getBoundingClientRect();
+          if (hr.bottom > 0) offset = Math.max(offset, hr.bottom + gapPx);
+        }
+
+        sec.style.setProperty('--pdp-sticky-top', Math.round(offset) + 'px');
+
+        var stickyInfo = sec.querySelector('safe-sticky.product-info');
+        if (stickyInfo) {
+          stickyInfo.style.removeProperty('top');
+        }
+      }
+
+      function scheduleSync() {
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(syncPdpStickyTop);
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', scheduleSync, { once: true });
+      } else {
+        scheduleSync();
+      }
+
+      window.addEventListener('scroll', scheduleSync, { passive: true });
+      window.addEventListener('resize', scheduleSync, { passive: true });
+      window.addEventListener('pageshow', scheduleSync);
+
+      if (typeof mq.addEventListener === 'function') {
+        mq.addEventListener('change', scheduleSync);
+      } else if (mq.addListener) {
+        mq.addListener(scheduleSync);
+      }
+
+      var storeHeader = document.querySelector('store-header.header');
+      if (storeHeader && typeof MutationObserver !== 'undefined') {
+        var mo = new MutationObserver(scheduleSync);
+        mo.observe(storeHeader, { attributes: true, attributeFilter: ['style', 'class'] });
+        var hdrSec = document.querySelector('.shopify-section--header');
+        if (hdrSec) mo.observe(hdrSec, { attributes: true, attributeFilter: ['style'] });
       }
     })();
   </script>

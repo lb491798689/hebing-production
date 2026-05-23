@@ -1734,6 +1734,51 @@ ul.sub-link-container {
     pointer-events: auto !important;
     transition: opacity 0.2s ease, visibility 0s linear 0s !important;
   }
+
+  /*
+    PAD（1280~1439）：Figma 仅缩小 logo↔菜单、菜单↔右侧工具区间距；菜单项间距 32px、字号 16px 不变。
+    禁止 flex-wrap 避免 ABOUT US / 语言切换被挤到第二行。
+  */
+  @media screen and (min-width: 1280px) {
+    #shopify-section-{{ section.id }} .header__main-nav .header__link-list.wrap {
+      flex-wrap: nowrap !important;
+    }
+    #shopify-section-{{ section.id }} .header__secondary-nav {
+      flex-wrap: nowrap !important;
+    }
+    #shopify-section-{{ section.id }} .header__secondary-nav .header__link-list,
+    #shopify-section-{{ section.id }} .header__secondary-nav .header__icon-list {
+      flex-wrap: nowrap !important;
+    }
+    #shopify-section-{{ section.id }} .header__main-nav .header__link-list > ul.contents > li > a,
+    #shopify-section-{{ section.id }} .header__main-nav .header__link-list > ul.contents > li > details > summary,
+    #shopify-section-{{ section.id }} .header__secondary-nav .header__link-list > ul.contents > li > a {
+      white-space: nowrap;
+    }
+  }
+
+  @media screen and (min-width: 1280px) and (max-width: 1439px) {
+    {%- if section.settings.layout contains 'logo_left' -%}
+    #shopify-section-{{ section.id }} {
+      --header-grid-template: "logo main-nav secondary-nav" / auto minmax(0, 1fr) auto;
+    }
+    {%- endif -%}
+
+    #shopify-section-{{ section.id }} .header {
+      --header-part-gap: 16px;
+    }
+
+    #shopify-section-{{ section.id }} .header__wrapper {
+      padding-left: 40px !important;
+      padding-right: 40px !important;
+      gap: 16px !important;
+    }
+
+    #shopify-section-{{ section.id }} .header__main-nav,
+    #shopify-section-{{ section.id }} .header__main-nav .header__link-list {
+      overflow: visible !important;
+    }
+  }
 {%- endstyle -%}
 <height-observer variable="header">
   <store-header class="header{% unless is_transparent_header %} is-filled{% endunless %}" {% if section.settings.enable_sticky %}sticky{% endif %}{% if is_transparent_header %} allow-transparency data-transparent-header{% endif %} hide-on-scroll="48">
@@ -2519,6 +2564,13 @@ ul.sub-link-container {
           while (node && node.parentNode !== ul) node = node.parentNode;
           if (!node || node.tagName !== 'LI') return;
           setActive(node);
+          /* 1280+ 桌面导航：悬浮当前项时立即展开（与 theme.js hover trigger 一致） */
+          if (window.innerWidth >= 1280) {
+            var activeDetails = node.querySelector(':scope > details[is="mega-menu-disclosure"], :scope > details[is="dropdown-disclosure"]');
+            if (activeDetails && activeDetails.getAttribute('trigger') === 'hover') {
+              activeDetails.open = true;
+            }
+          }
           /* fb5abc2：强制立即关闭兄弟 details，绕过 Shopify 500ms mouseOverDelayTolerance */
           for (var i = 0; i < ul.children.length; i++) {
             var sib = ul.children[i];

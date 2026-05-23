@@ -87,7 +87,7 @@
 
     {{ qty_sel_scope }} .block-label {
       font-family: Gabarito !important;
-      font-size: 24px !important;
+      font-size: 20px !important;
       font-style: normal !important;
       font-weight: 600 !important;
       line-height: 120% !important;
@@ -349,6 +349,14 @@
     display: inline-block !important;
     visibility: visible !important;
     opacity: 1 !important;
+  }
+
+  /* 手机端（≤999）Select: 标题与 Quantity 标签同字号：20px */
+  @media screen and (max-width: 999px) {
+    .product-info .product-info__variant-picker .variant-picker__option-info > .h-stack .variant-picker__option-heading,
+    .product-info .product-info__variant-picker .variant-picker__option-info > .h-stack > span {
+      font-size: 20px !important;
+    }
   }
 
   #shopify-section-{{ section.id }} span.variant-picker__option-heading {

@@ -117,6 +117,13 @@
       overflow-y: visible !important;
     }
 
+    /* PDP variant 选项标题（如 "Select:"）字体颜色对齐 Figma：theme 默认 .text-subdued 为 #AEAEAE，
+       Jingva G7/M6 PDP 要求实色 #1A1A1A，覆盖范围严格限定到当前 section 的 variant-picker 标题区。 */
+    #shopify-section-{{ section.id }} .product-info__variant-picker .variant-picker__option-heading,
+    #shopify-section-{{ section.id }} .product-info__variant-picker .variant-picker__option-heading.text-subdued {
+      color: #1A1A1A !important;
+    }
+
     #shopify-section-{{ section.id }} .product-info__block-item[data-block-type="quantity-selector"] {
       position: relative !important;
       z-index: 2 !important;

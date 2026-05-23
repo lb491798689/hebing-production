@@ -57,8 +57,41 @@
     .jingva-media-endorsement-new-{{ sid }} .jingva-endorsement-new-container[data-pc-center] .jingva-endorsement-new-title {
       text-align: center !important;
     }
-    .jingva-media-endorsement-new-{{ sid }} .jingva-endorsement-new-container[data-pc-center] .swiper-wrapper {
-      justify-content: center !important;
+    /* PC（≥1280）≤3 个 item：销毁 Swiper，用静态 flex 轨道居中（避免 transform 与 Swiper 冲突） */
+    @media screen and (min-width: 1280px) {
+      .jingva-media-endorsement-new-{{ sid }} .jingva-endorsement-new-container[data-pc-center] .swiper-wrapper {
+        justify-content: center !important;
+        gap: 12px !important;
+      }
+      .jingva-media-endorsement-new-{{ sid }} .jingva-endorsement-new-container[data-pc-center] .jingva-endorsement-new-swiper-wrapper {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        width: 100% !important;
+      }
+      .jingva-media-endorsement-new-{{ sid }} .jingva-endorsement-new-container[data-pc-center] .swiper.jingva-endorsement-new-swiper-{{ sid }} {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        overflow: visible !important;
+      }
+      .jingva-media-endorsement-new-{{ sid }} .jingva-endorsement-new-container[data-pc-center] .swiper.jingva-endorsement-new-swiper-static-{{ sid }} .swiper-wrapper {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        justify-content: center !important;
+        align-items: stretch !important;
+        width: 100% !important;
+        gap: 12px !important;
+        transform: none !important;
+        transition-duration: 0ms !important;
+        box-sizing: border-box !important;
+      }
+      .jingva-media-endorsement-new-{{ sid }} .jingva-endorsement-new-container[data-pc-center] .swiper.jingva-endorsement-new-swiper-static-{{ sid }} .swiper-slide {
+        flex-shrink: 0 !important;
+        margin-right: 0 !important;
+      }
     }
 
     .jingva-media-endorsement-new-{{ sid }} .jingva-endorsement-new-swiper-wrapper {
@@ -466,26 +499,39 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
+  var jmeEndorsementCount = {{ endorsement_count }};
+  var jmePcCenter = jmeEndorsementCount <= 3;
+  var jmeSpaceBetween = 12;
+  var jmeSwiper = null;
+
+  function jmeIsPcViewport() {
+    return window.matchMedia('(min-width: 1280px)').matches;
+  }
+
+  function jmeShouldPcCenter() {
+    return jmePcCenter && jmeIsPcViewport();
+  }
+
+  function jmeResetStaticTrack(swiperEl) {
+    if (!swiperEl) return;
+    var wrapper = swiperEl.querySelector('.swiper-wrapper');
+    if (!wrapper) return;
+    wrapper.style.removeProperty('transform');
+    wrapper.style.removeProperty('transition-duration');
+    wrapper.style.removeProperty('width');
+    var slides = wrapper.querySelectorAll('.swiper-slide');
+    for (var i = 0; i < slides.length; i++) {
+      slides[i].style.removeProperty('margin-right');
+      slides[i].style.removeProperty('width');
+    }
+  }
+
   {% if endorsement_count > 1 %}
-    if (typeof Swiper !== 'undefined') {
-      var swiperEl = section.querySelector('.jingva-endorsement-new-swiper-{{ sid }}');
-      var prevBtn = section.querySelector('.jingva-endorsement-new-prev-{{ sid }}');
-      var nextBtn = section.querySelector('.jingva-endorsement-new-next-{{ sid }}');
+    var swiperEl = section && section.querySelector('.jingva-endorsement-new-swiper-{{ sid }}');
+    var prevBtn = section && section.querySelector('.jingva-endorsement-new-prev-{{ sid }}');
+    var nextBtn = section && section.querySelector('.jingva-endorsement-new-next-{{ sid }}');
 
-      // 自定义 navigation：因为 .swiper 设了 overflow:visible，slides 会溢出 1200px 容器
-      // 但视觉上仍在 section 视口内，Swiper 内置 isBeginning/isEnd 基于容器宽度判断会失真。
-      // 改为基于「section 可视区 vs 首末 slide 的 boundingClientRect」做边界判断。
-      var jmeSwiper = new Swiper(swiperEl, {
-        slidesPerView: 'auto',
-        spaceBetween: 12,
-        centeredSlides: false,
-        loop: false,
-        watchOverflow: true,
-        observer: true,
-        observeParents: true
-      });
-
-      function jmeGetVisibleBounds() {
+    function jmeGetVisibleBounds() {
         var rect = section.getBoundingClientRect();
         var cs = window.getComputedStyle(section);
         var padL = parseFloat(cs.paddingLeft) || 0;
@@ -495,6 +541,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       function jmeUpdateNavState() {
         if (!jmeSwiper || !jmeSwiper.slides || jmeSwiper.slides.length === 0) return;
+        if (jmeShouldPcCenter()) return;
         var slides = jmeSwiper.slides;
         var firstRect = slides[0].getBoundingClientRect();
         var lastRect = slides[slides.length - 1].getBoundingClientRect();
@@ -574,17 +621,55 @@ document.addEventListener('DOMContentLoaded', function() {
         });
       }
 
-      jmeSwiper.on('slideChange', jmeUpdateNavState);
-      jmeSwiper.on('setTranslate', jmeUpdateNavState);
-      jmeSwiper.on('transitionEnd', jmeUpdateNavState);
-      jmeSwiper.on('resize', jmeUpdateNavState);
-      jmeSwiper.on('observerUpdate', jmeUpdateNavState);
+      function jmeBindSwiperEvents() {
+        if (!jmeSwiper) return;
+        jmeSwiper.on('slideChange', jmeUpdateNavState);
+        jmeSwiper.on('setTranslate', jmeUpdateNavState);
+        jmeSwiper.on('transitionEnd', jmeUpdateNavState);
+        jmeSwiper.on('resize', jmeUpdateNavState);
+        jmeSwiper.on('observerUpdate', jmeUpdateNavState);
+      }
 
-      window.addEventListener('resize', jmeUpdateNavState);
-      // 初始 + 图片/字体加载完后再校正一次
-      jmeUpdateNavState();
-      window.requestAnimationFrame(jmeUpdateNavState);
-      window.addEventListener('load', jmeUpdateNavState);
+      function jmeCreateSwiper() {
+        if (!swiperEl || typeof Swiper === 'undefined' || jmeSwiper) return;
+        jmeResetStaticTrack(swiperEl);
+        swiperEl.classList.remove('jingva-endorsement-new-swiper-static-{{ sid }}');
+        jmeSwiper = new Swiper(swiperEl, {
+          slidesPerView: 'auto',
+          spaceBetween: jmeSpaceBetween,
+          centeredSlides: false,
+          loop: false,
+          watchOverflow: true,
+          observer: true,
+          observeParents: true
+        });
+        jmeBindSwiperEvents();
+        jmeUpdateNavState();
+      }
+
+      function jmeEnablePcStaticLayout() {
+        if (!swiperEl) return;
+        if (jmeSwiper) {
+          jmeSwiper.destroy(true, true);
+          jmeSwiper = null;
+        }
+        jmeResetStaticTrack(swiperEl);
+        swiperEl.classList.add('jingva-endorsement-new-swiper-static-{{ sid }}');
+      }
+
+      function jmeSyncSwiperMode() {
+        if (!swiperEl) return;
+        if (jmeShouldPcCenter()) {
+          jmeEnablePcStaticLayout();
+          return;
+        }
+        swiperEl.classList.remove('jingva-endorsement-new-swiper-static-{{ sid }}');
+        jmeCreateSwiper();
+      }
+
+      jmeSyncSwiperMode();
+      window.addEventListener('resize', jmeSyncSwiperMode);
+      window.addEventListener('load', jmeSyncSwiperMode);
     }
   {% endif %}
 });
